@@ -1,4 +1,7 @@
-* {
+@import "tailwindcss";
+
+
+/* * {
     box-sizing: border-box;
 }
 .header {
@@ -73,4 +76,4 @@ img.logo {
 .filter {
     display: flex;
     column-gap: 30px;
-}
+} */

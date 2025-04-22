@@ -1,13 +1,16 @@
-import RestaurantCard from "./RestaurantCard"; 
-import { useEffect, useState } from "react";
+import RestaurantCard, {withPromotedLabel} from "./RestaurantCard"; 
+import { useEffect, useState,useContext } from "react";
 import Shimmer from "./Shimmer";
-import { Link } from "react-router";
+import { Link } from "react-router"; 
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
 
     const [listOfRestaurants, setlistOfRestaurants] = useState([]);
     const [filterRestaurant, setFilterRestaurant] = useState();
     const [searchText, setSearchText] = useState("");
+
+    const RestaurantCardPromoted = withPromotedLabel(RestaurantCard);
 
     useEffect(()=> {
       fetchData();
@@ -22,22 +25,24 @@ const Body = () => {
         setlistOfRestaurants(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
         setFilterRestaurant(json?.data?.cards[4]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
     }
-    
+    // console.log(listOfRestaurants);
   
+    const {setUserName, loggedInUser} = useContext(UserContext);
+
     return listOfRestaurants.length === 0 ? (
       <Shimmer />
     ) : (
       <div className="body">
 
-      <div className="filter">
+      <div className="filter flex gap-24 py-8 px-4">
 
       <div className="search">
-          <input type="text" className="search-box" value={searchText} 
+          <input type="text" className="search-box border" placeholder="search" value={searchText} 
               onChange={(e) => {
                 setSearchText(e.target.value);
               }}
           />
-          <button onClick={() => {
+          <button className="bg-orange-400 py-1 px-4" onClick={() => {
               const filterRest= listOfRestaurants.filter((res) => 
                 res.info.name.toLowerCase().includes(searchText.toLocaleLowerCase())
               );
@@ -48,20 +53,30 @@ const Body = () => {
 
       </div>
 
-      <button className="filter-btn" onClick={() => {
+      <button className="bg-orange-400 py-1 px-4" onClick={() => {
           let filterList = listOfRestaurants.filter( (res) => res?.info?.avgRating > 4.4 );
           setFilterRestaurant(filterList);
       }
       }>
           Top Rated Customers
       </button>
+
+      <div>
+        <label>UserName: </label> 
+        <input type="text" className="border p-1" value={loggedInUser} 
+          onChange={(e) => setUserName(e.target.value) }
+        />
+      </div>
       </div>
 
         
-        <div className="res-container">
+        <div className="res-container  grid grid-cols-6 gap-8">
           {filterRestaurant.map((restaurant) => (
-            <Link key={restaurant.info.id} to={"/restaurants/" +restaurant.info.id}>
-              <RestaurantCard resData={restaurant} />
+            <Link className="bg-gray-200 p-3" key={restaurant.info.id} to={"/restaurants/" +restaurant.info.id}>
+              {
+                restaurant.info.isOpen ? <RestaurantCardPromoted resData={restaurant} /> : <RestaurantCard resData={restaurant} />
+              }
+              
             </Link>
           ))}
         </div> 
